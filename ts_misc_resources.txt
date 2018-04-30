@@ -1,0 +1,57 @@
+TS Analysis Fundamentals
+a) https://people.maths.bris.ac.uk/~magpn/Research/LSTS/STSIntro.html
+b) http://www.business-science.io/timeseries-analysis/2017/08/30/tidy-timeseries-analysis-pt-4.html
+c) https://www.stat.berkeley.edu/~bartlett/courses/153-fall2010/lectures/3.pdf
+d) change points: https://facebook.github.io/prophet/docs/trend_changepoints.html
+e) signal and noise: https://towardsdatascience.com/a-theory-of-prediction-10cb335cc3f2
+
+Monte Carlo methods
+https://www.phy.ornl.gov/csep/CSEP/MC/MC.html
+
+Jupyter Markdown
+a) https://medium.com/ibm-data-science-experience/markdown-for-jupyter-notebooks-cheatsheet-386c05aeebed
+b) https://www.dataquest.io/blog/jupyter-notebook-tips-tricks-shortcuts/
+c) https://medium.com/@mjspeck/presenting-code-using-jupyter-notebook-slides-a8a3c3b59d67
+
+Overfitting
+
+LSTM:
+a) https://machinelearningmastery.com/multivariate-time-series-forecasting-lstms-keras/
+b) https://blog.statsbot.co/time-series-prediction-using-recurrent-neural-networks-lstms-807fa6ca7f
+c) http://intelligentonlinetools.com/blog/2018/02/27/time-series-prediction-lstm-keras/
+
+Deep Learning with Keras:
+https://machinelearningmastery.com/time-series-prediction-with-deep-learning-in-python-with-keras/
+https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
+
+SciKit Learn TS:
+a) http://mariofilho.com/how-to-predict-multiple-time-series-with-scikit-learn-with-sales-forecasting-example/
+b) https://towardsdatascience.com/time-series-analysis-in-python-an-introduction-70d5a5b1d52a
+c) https://machinelearningmastery.com/autoregression-models-time-series-forecasting-python/
+d) http://www.blackarbs.com/blog/time-series-analysis-in-python-linear-models-to-garch/11/1/2016
+
+Error Metrics for Time Series
+Usually you get an improvement by using the same function to evaluate and optimize your model. In this case we can do this by simply taking the log of our target variable before passing it to the fit model.
+a) Root Mean Squared Log Error (RMSE)
+b) bias-variance trade-off: https://en.wikipedia.org/wiki/Bias%E2%80%93variance_tradeoff
+c) overfitting in ML: https://elitedatascience.com/overfitting-in-machine-learning
+
+
+Volatility measures:
+historical volatility:
+- standard deviation/((sqrt(N)/(N-1))
+- parkinson high-low estimator
+- Rogers-Satchell
+
+resources:
+a) http://www.todaysgroep.nl/media/236846/measuring_historic_volatility.pdf
+b) https://mathbabe.org/2011/07/24/measuring-historical-volatility/
+c) http://www.ivolatility.com/help/3.html
+
+consider using a zero expected mean in the vol calcs
+volatility measures must be normalized such that the coverage period is the equal - may require interpolation or extrapolation
+
+O: Open
+H: Hi
+L: Low
+C: Close

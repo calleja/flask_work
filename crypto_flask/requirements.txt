@@ -1,0 +1,6 @@
+requests
+datetime
+pymongo
+numpy
+pandas
+matplotlib
