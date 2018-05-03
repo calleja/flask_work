@@ -25,7 +25,7 @@ class MongoInterface(object):
             client=pymongo.MongoClient('mongodb://tio:persyy@ds131329.mlab.com:31329/crypto_trades',serverSelectionTimeoutMS=7000)
         self.db=client.crypto_trades
         self.trades=self.db.trade_collection
-        self.trades.remove()
+        #TODO uncomment for production self.trades.remove() 
         
     def tradeInjection(self,doc):
         self.trades.insert_one(doc)

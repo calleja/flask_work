@@ -36,16 +36,22 @@ class Account:
         
     def checkIfNew(self,dic):
         #checks whether there is a position in that stock and in the same direction
-        if dic['ticker'] in self.positions.keys():
-            if self.positions[dic['ticker']]['original_direction']==dic['original_tradetype']:
-                return False
-        else:
+        print('the ticker stored in the ass1 argument is {}'.format(dic['ticker']))
+        try:
+            if dic['ticker'] in self.positions.keys():
+                if self.positions[dic['ticker']]['original_direction']==dic['original_tradetype']:
+                    return False
+            else:
             #print('entering this new position into the accounts dictionary - from the ass1_accountsClass')
             #create an entry/holding in the portfolio for that stock at 0 notional and shares
-            self.positions[dic['ticker']]={'coins':0,'notional':0,'original_direction':'','realized_pl':0}
+                self.positions[dic['ticker']]={'coins':0,'notional':0,'original_direction':'','realized_pl':0}
             #print('trade attributes stored:\n')
             #print(self.positions[dic['ticker']])
-            return True
+                return True
+        except TypeError:
+            print('The type error was thrown at accounts_class. Trying to call the function again.')
+            self.positions={}
+            self.checkIfNew(self,dic)
         
         
     def postEquityTrade(self,dic):

@@ -3,14 +3,14 @@
 """
 Will need to retrieve universe of available currencies from bittrex and place into a pd df
 """
-import matplotlib
-matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 import pandas as pd
 import requests
 import datetime
-import io
+import os
 import numpy as np
+import base64
+from io import BytesIO
 
 class RetrieveMarkets():
     #some global variables for Bittrex
@@ -26,7 +26,6 @@ class RetrieveMarkets():
         #all arguments must be converted to string
         payload={'apikey':self.api_key,
 'apisecret':self.api_secret,'nonce':datetime.datetime.now()}
-
         r=requests.get(url,params=payload)
         df=pd.DataFrame(r.json()['result'])
         self.df_active=df[df.IsActive == True]
@@ -42,22 +41,35 @@ class RetrieveMarkets():
         all_prices_dict={}
         for single_tick in ticker_list:
             self.market=self.base_currency+'-'+single_tick
+            print('Sending over the following currency pair to the bittrex api: {}'.format(self.market))
             #print('sending the trading pair {} to bittrex'.format(self.market))
             payload2={'apikey':self.api_key,
 'apisecret':self.api_secret,'nonce':datetime.datetime.now(),'market':self.market}
             r=requests.get(url_current,params=payload2) 
+            print('result from the api: {}'.format(r.json()['result']))
             price_dict=r.json()['result']
             #add the ticker associated w/prices to dict... AS ITS KEY... dict_list will be a list of nested dictionaries
             #TODO have the option of making this a dictionary of dictionaries instead of a list of dictionaries, which is more difficult to index
             #print('response from bittrex {}'.format(price_dict))
             all_prices_dict[single_tick]=price_dict
-            
-            
-        #returns the ask, bid, last trades in a dict/json document... this will be refactored to return a list of dictionaries
-        
-            
+        #returns the ask, bid, last trades in a dict/json document... this will be refactored to return a list of dictionaries 
         return(all_prices_dict)
-        
+    
+    def getCurrentPriceCC(self,ticker_list):
+        #bittrex API stopped working, interact with cryptocompare
+        url_now='https://min-api.cryptocompare.com/data/price'
+        #fsym=ETH&tsyms=BTC,USD,EUR'
+        self.stats_dic={}
+        for single_tick in ticker_list:
+            #look up the ticker from the index number
+            #instantiate the subdicitonary
+            payload2={'tsyms':single_tick,'fsym':'BTC', 'apikey':self.api_key,'apisecret':self.api_secret,'nonce':datetime.datetime.now()}
+            r=requests.get(url_now,params=payload2) 
+            print('printing the retrieved market price from retrieveMarkets object {}'.format(r.json()))
+            for key, value in r.json().items():
+                self.stats_dic[key]=value
+            return(self.stats_dic)
+            
     def get24Hr(self, ticker_list):
         url_24_hr='https://min-api.cryptocompare.com/data/histohour?'
         self.stats_dic={}
@@ -76,12 +88,10 @@ class RetrieveMarkets():
             self.stats_dic[single_tick]['avg']=np.average(df_mat[:,1])
         return(self.stats_dic)
     
-    def get100Day(self,ticker_index):
+    def get100Day(self,ticker):
         ''' Acquire historical prices from CRYPTOCOMPARE '''
         url='https://min-api.cryptocompare.com/data/histoday'
         #will return a str
-        ticker=self.df_active.loc[ticker_index,'Currency']
-#prices from last 120 days
         parameters= {'fsym':ticker, 'tsym': self.base_currency, 'e': 'Bittrex', 'aggregate':1,'limit':120}
         
         r=requests.get(url,parameters)
@@ -93,11 +103,8 @@ class RetrieveMarkets():
         raw_time=j_obj['Data']
         df=pd.DataFrame.from_dict(raw_time)
         df['time']=df['time'].apply(lambda x: datetime.datetime.fromtimestamp(x))
-        #print the price chart
-        self.draw100day(df,ticker)
-        #log the ticker elsewhere
-        print('get100Day from retrieveMarkets is sending ticker: '+ticker)
-        return(ticker)
+        #print the price chart... returns the path to the image for html rendering
+        return(self.draw100day(df,ticker))
     
     
     def draw100day(self,df,ticker):
@@ -113,10 +120,8 @@ class RetrieveMarkets():
         plt.plot(df['time'],df['ma_20'],color='cyan',linestyle='-')
 #plt.title(str(self.market)+' pair') 
         plt.title('100 day and 20 day MA: '+str(self.base_currency)+'-'+ticker+' pair')
-        plt.switch_backend('agg')
-        plt.show(block=True)
-        img=io.BytesIO()
-        plt.savefig(img,format='png')
-        img.seek(0)
+        pathy=os.getcwd()+'/image_1.png'
+        plt.savefig(pathy,format='png')
         plt.close()
-        return()
+        print('pathy from draw100 {}'.format(pathy))
+        return(pathy)

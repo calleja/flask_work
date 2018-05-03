@@ -19,7 +19,7 @@ class EquityTrade():
         self.tradetype=trade_dic['tradetype'] #buy, sell, short
         #self.original_trade_type=trade_dic['original_tradetype']
         self.currentPortfolio=acctSnapshot #ass1_accountsClass
-        
+        print('equityTrade object created in tradeClass - called from tradeManager: {}, {}, {}'.format(self.ticker, self.coins, self.currentPortfolio))
     
     def qaTrade(self,result_set):
         #ensure that the trade makes sense given the current holdings in the portfolio... return a True or False... True will allow the transaction to make all the proper updates, while a False should prompt the user that the transaction is not allowed given the current holdings
@@ -40,6 +40,7 @@ class EquityTrade():
                 
     def tradeType(self):
         #call the appropriate function, determined by trade type i.e. short, long, sell from long
+        print('have arrived at tradeType() of the tradeClass object. The account object has some contents: {}'.format(self.currentPortfolio.positions))
         if self.tradetype=='short':
             result_set=self.shortTrade()
             return(result_set)
