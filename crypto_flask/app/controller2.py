@@ -27,6 +27,11 @@ def mainMenu():
         if form.menu_selection.data=='a':
             return(redirect('/crypto_menu'))
         #eud.engageUser(form.menu_selection.data)
+        elif form.menu_selection.data=='b':
+            #trade blotter
+            return(redirect('/trade_blotter'))
+        elif form.menu_selection.data=='d':
+            return(redirect('/coin_trade_history'))
         return(redirect('/main_menu'))
 	#handle the rendering 
     return(render_template('main_menu_crypt.html', title='Main Menu', form=form))
@@ -37,6 +42,7 @@ index_start=0
 def cryptoMenu():
     #engage the user on asset, transaction type, number of shares 
     rm=retrieveMarkets.RetrieveMarkets()
+    session['number']==0
     df_active=rm.getCurrencies()
     df_active.reset_index(inplace=True)
     session['cryptos']=df_active.to_dict('records')
@@ -78,10 +84,11 @@ def enquireDeets():
         flash('this is form.tradeRadio.data {}'.format(form.tradeRadio.data))
         try:
             mkt_price,image_url=eud.engageUser('a',ticker=session['trade_dict']['ticker'],tradetype=form.tradeRadio.data)
+            flash('market price was retrieved and stored successfully at {}'.format(mkt_price))
+            flash('image url was properly generated as {}'.format(image_url))
         except TypeError:
             mkt_price= str(100.00)
             image_url=os.getcwd()+'/image_1.png'
-            flash(image_url)
         #flash('market price: {}'.format(mkt_price))
         #flash('image url: {}'.format(image_url))
         #retrieve the graphic
@@ -94,3 +101,12 @@ def enquireDeets():
         eud.engageUser('a',ticker=session['trade_dict']['ticker'],qty=float(form.coinFreqString.data),tradetype=form.tradeRadio.data,confirmed=True)
         return(redirect('/main_menu'))
     return(render_template('tradeDeetsMenu.html', form=form))
+
+@app.route('/coin_trade_history',methods=['GET','POST'])
+def renderHistory():
+    return
+    
+@app.route('/trade_blotter', methods = ['GET'])
+def renderBlotter():
+    table=eud.engageUser('b')
+    return(render_template('trade_blotter.html', html_table=table))

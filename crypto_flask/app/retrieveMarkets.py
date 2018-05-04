@@ -63,7 +63,7 @@ class RetrieveMarkets():
         for single_tick in ticker_list:
             #look up the ticker from the index number
             #instantiate the subdicitonary
-            payload2={'tsyms':single_tick,'fsym':'BTC', 'apikey':self.api_key,'apisecret':self.api_secret,'nonce':datetime.datetime.now()}
+            payload2={'tsyms':'BTC','fsym':single_tick, 'apikey':self.api_key,'apisecret':self.api_secret,'nonce':datetime.datetime.now()}
             r=requests.get(url_now,params=payload2) 
             print('printing the retrieved market price from retrieveMarkets object {}'.format(r.json()))
             for key, value in r.json().items():

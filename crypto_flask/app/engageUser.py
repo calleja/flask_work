@@ -8,13 +8,15 @@ from app import tradeClass as trade
 from app import ass1_acountsClass as accts
 from app import tradeManager as tm
 from app import retrieveMarkets as rm
+from app import mongoDB_interface as mongo
 import datetime
 
 class Dialogue(object):
     def __init__(self):
-        self.todayTrading=tm.TradingDay()
         #create a new account/portfolio
         self.act=accts.Account()
+        self.mongo_connection=mongo.MongoInterface()
+        self.todayTrading=tm.TradingDay(self.mongo_connection)
     
     def engageUser(self, menuSelection, ticker=None,qty=None ,tradetype=None, confirmed=False):
         #menuSelection=input('Please select from the list of options below.\n a -Trade\n b - Show Blotter\n c- Show P/L\n d - Quit\n > ')
@@ -27,14 +29,11 @@ class Dialogue(object):
             #call the blotter from the tradeManager class - may need rendering in this class, and the return value from either this function or another in this class can be handled at the controller level
             # TODO print('call blotter function')
             #the blotter function will return a list of dictionaries, or perhaps a pandas dataframe, that I'll then print... if extensive formating is required, I'll do it in this class
-            print(self.todayTrading.prettyPrintTradeLog())
-            return(self.engageUser())
+            return(self.todayTrading.prettyPrintTradeLog().iloc[:,1:].to_html(index=False))
         elif menuSelection=='c':
             
             print('your current portfolio is below... p&l calc is pending')
             self.calcPL()
-            
-            return self.engageUser()
         elif menuSelection=='d':
             return
         else:
@@ -81,12 +80,14 @@ class Dialogue(object):
         print('the ticker stored in the agg_dic in the prepareTrade() is {}'.format(agg_dic['ticker']))
         options={'a':'buy','b':'sell to close'}
         agg_dic['tradetype'],agg_dic['price']=options[tradetype],self.selectExecPrice(letter=tradetype,ticker=ticker)
+        print('status of the agg_dic dictionary from eu a/o line 84: {}'.format(agg_dic))
         if confirmed==False:
                 #return the current price and the stock chart
             url=self.rm.get100Day(ticker)
-            print('engageUser is sending back price {} and url: {}'.format(agg_dic['price'],url))
+            print('engageUser is sending back price: {}'.format(agg_dic['price']))
+            print('eu.prepareTrade url is sending back price: {}'.format(url))
             #returns the price as a string and a path as string for location of the price chart
-            return(str(agg_dic['price']),str(url))
+            return(str(agg_dic['price']), str(url))
                # '.format(agg_dic['price'],self.rm.base_currency))
         else:
                 #record the trade
@@ -94,12 +95,11 @@ class Dialogue(object):
             agg_dic['timestamp']=datetime.datetime.now()
                 #TODO record trade details and verify validity (by interacting with the account class)... recall that it's the tradeManager that will store/send the trades to the mongoDB
             try:
+                #todayTrading.makeTrade() returns nothing
                 print('objects being passed to tm.todayTrading.makeTrade: {} AND {}'.format(agg_dic,self.act))
-                single_trade_dic=self.todayTrading.makeTrade(agg_dic,self.act)
-                print('you have reached the second to last line in eud.prepareTrade(). THe dictionary being passed to act.postEquityTrade contains {}'.format(single_trade_dic))
+                self.todayTrading.makeTrade(agg_dic,self.act)
                     #print(single_trade_dic)
                     #direct interface with accounts class
-                self.act.postEquityTrade(single_trade_dic)
                 print('assume we have logged your trade')
                     #print(self.act.positions)
             except KeyError:
@@ -110,9 +110,9 @@ class Dialogue(object):
         #handle the user trade request and lookup the proper price
         try:
                 #getCurrentPrice() requires a list of tickers - fine if contains one element
-            current_price_dict=self.rm.getCurrentPriceCC([ticker])[ticker]
+            current_price_float=self.rm.getCurrentPriceCC([ticker])['BTC']
             #select the appropriate price according to the trade type: buy on ask and sell on the bid
-            appPrice=current_price_dict
+            appPrice=current_price_float
             return(appPrice)
         except ValueError:
             print('type either a or b')
@@ -142,7 +142,7 @@ class Dialogue(object):
             #print('moving on the last step: act.calcUPL - called from eu.calcPL')
         
         #TODO undo print(self.act.calcUPL(prices_dict,sorted_list))
-            print(self.act.calcUPL(prices_dict,sorted_list))
+            return(self.act.calcUPL(prices_dict,sorted_list).to_html())
         else:
-            print('Your cash balance is {}'.format(self.act.coin_bal))
+            return('<p> Your cash balance is {}</p>'.format(self.act.coin_bal))
         return

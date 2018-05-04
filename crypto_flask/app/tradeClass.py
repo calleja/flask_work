@@ -5,8 +5,8 @@ This class QAs the trade, makes calculations based on tradetype... trades are to
 """
 import sys
 #these paths will later need to be edited and matched with the imported/downloaded git folder
-sys.path.append('/usr/src/app/PROJECT_FOLDER')
-sys.path.append('C:/Users/callejal/Documents/crypto_flask/library')
+#sys.path.append('/usr/src/app/PROJECT_FOLDER')
+#sys.path.append('C:/Users/callejal/Documents/crypto_flask/library')
 
 class EquityTrade():
     
@@ -45,6 +45,7 @@ class EquityTrade():
             result_set=self.shortTrade()
             return(result_set)
         elif self.tradetype=='buy':
+            print('tradeClass.tradeType is now invoked')
             result_set=self.longTrade()
             #from above, trade dictionaries are compiled before qa
             #TODO the qaTrade method will now return a dictionary IF the trade is approved... this dictionary will contain an added field for cash position of the portfolio AFTER executing the trade
