@@ -10,10 +10,13 @@ In addition, store cash amount; keep in mind that short positions do not affect 
 import pandas as pd
 import sys
 import numpy as np
+import datetime
 
 class Account:
     def __init__(self):
         self.coin_bal=1000000
+        self.coin_bal_history=pd.Series()
+        self.pl_history=pd.Series()
         #will be a nested dictionary, the outermost key is the ticker and the value will be a dictionary of total shares, average price and possibly VWAP, realized p/l... ex: {ticker:{'notional':notaionValue,'direction':direction_string, etc...}}
         #TODO this cannot be a predefined dictionary... needs to be transformed to an empty dynamic dict
         ''' legacy
@@ -132,6 +135,7 @@ this function will then instantiate a tradeClass object that will QA the trade (
          #calculate the total size of portfolio: cash + notional
         self.portfolio_value=self.coin_bal+total_notional
         cash_line={'cash':{'coins':self.coin_bal,'notional':self.portfolio_value}}
+        self.coin_bal_history=        self.coin_bal_history.append(pd.Series(self.coin_bal,index=[datetime.datetime.now()]))
         #TODO cash_line will need to conform to the table structure: with index "cash" and blank values for WAP, UPL and RPL... ensure that RPL persists after the position in the stock was liquidated
         #print('cash is now calculated as {}'.format(cash_line))
         #print('now calling conver2Df from the accounts class')
@@ -143,6 +147,7 @@ this function will then instantiate a tradeClass object that will QA the trade (
     def convert2Df(self,cash_line,sort_list):
         #index of the df should be the coin symbols
         df=pd.DataFrame.from_dict(self.positions,orient='index')   
+        df=df.loc[df['coins'].notnull(),:]
         #print('DF of positions now set in conver2DF, having shape {}'.format(df.shape))
         #print('df is of type {}'.format(type(df)))
         
@@ -168,7 +173,8 @@ this function will then instantiate a tradeClass object that will QA the trade (
         
         df1['proportion_notional']=df1.apply(lambda x: x['notional']/sum(df1['notional']),axis=1)
         #print('df after calculating proportion notional {}'.format(df1))
-        
+        total_pl=df1['total p/l'].sum(skipna=True)
+        self.pl_history=        self.pl_history.append(pd.Series(total_pl,index=[datetime.datetime.now()]))
         #compile the cash dataframe
         cash_line['cash'].update({'original_direction':'','realized_pl':'','vwap':0,'total p/l':None,'proportion_shares':None,'proportion_notional':None,'upl':None})
         #print('cash line of the df is now ready for df conversion {}'.format(cash_line))

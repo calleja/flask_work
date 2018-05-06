@@ -79,5 +79,7 @@ class TradingDay(object):
         universe=['AMZN','AAPL','SNAP','INTC','MSFT']
         [traded_ticks.append(x) for x in universe if x not in traded_ticks]
         return(list(traded_ticks))
+        
+    
     
         

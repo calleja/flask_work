@@ -120,8 +120,5 @@ class RetrieveMarkets():
         plt.plot(df['time'],df['ma_20'],color='cyan',linestyle='-')
 #plt.title(str(self.market)+' pair') 
         plt.title('100 day and 20 day MA: '+str(self.base_currency)+'-'+ticker+' pair')
-        pathy=os.getcwd()+'/image_1.png'
-        plt.savefig(pathy,format='png')
-        plt.close()
-        print('pathy from draw100 {}'.format(pathy))
-        return(pathy)
+        plt.savefig('./app/static/image_price_ts_basic.png',format='png')
+        return('static/image_price_ts_basic.png')

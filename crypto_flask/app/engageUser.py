@@ -23,22 +23,23 @@ class Dialogue(object):
         if menuSelection=='a':
             #if 'a' and they only want to view markets, return a graphic and the current price; book the trade if they want to submit a trade
             print('sending the following over to prepareTrade: {}, {}, {}, {}'.format(ticker,qty,tradetype,confirmed))
-            #returns two items: the price string and path string of the graphic
-            self.prepareTrade(ticker,qty,tradetype,confirmed)
+            #returns two items: the price string and path string of the graphic... def prepareTrade(self,ticker,qty,tradetype,confirmed):
+            return(self.prepareTrade(ticker=ticker,qty=qty,tradetype=tradetype,confirmed=confirmed))
         elif menuSelection=='b':
             #call the blotter from the tradeManager class - may need rendering in this class, and the return value from either this function or another in this class can be handled at the controller level
             # TODO print('call blotter function')
             #the blotter function will return a list of dictionaries, or perhaps a pandas dataframe, that I'll then print... if extensive formating is required, I'll do it in this class
             return(self.todayTrading.prettyPrintTradeLog().iloc[:,1:].to_html(index=False))
         elif menuSelection=='c':
-            
+            #show p/l
             print('your current portfolio is below... p&l calc is pending')
-            self.calcPL()
+            return(self.calcPL())
+            
         elif menuSelection=='d':
-            return
+            return(self.mongo_connection.retrieveCoinSpecific(ticker))
         else:
-            print('please select an option')
-            self.engageUser()
+            return(print('please select an option'))
+
     
     def iterateDF(self,df,index_start):
         #begin iteration from the index passed in the argument call
@@ -80,14 +81,13 @@ class Dialogue(object):
         print('the ticker stored in the agg_dic in the prepareTrade() is {}'.format(agg_dic['ticker']))
         options={'a':'buy','b':'sell to close'}
         agg_dic['tradetype'],agg_dic['price']=options[tradetype],self.selectExecPrice(letter=tradetype,ticker=ticker)
-        print('status of the agg_dic dictionary from eu a/o line 84: {}'.format(agg_dic))
         if confirmed==False:
                 #return the current price and the stock chart
             url=self.rm.get100Day(ticker)
-            print('engageUser is sending back price: {}'.format(agg_dic['price']))
-            print('eu.prepareTrade url is sending back price: {}'.format(url))
+            #print('engageUser is sending back price: {}'.format(agg_dic['price']))
+            #print('eu.prepareTrade url is sending back price: {}'.format(url))
             #returns the price as a string and a path as string for location of the price chart
-            return(str(agg_dic['price']), str(url))
+            return(str(agg_dic['price']),str(url))
                # '.format(agg_dic['price'],self.rm.base_currency))
         else:
                 #record the trade
@@ -96,7 +96,6 @@ class Dialogue(object):
                 #TODO record trade details and verify validity (by interacting with the account class)... recall that it's the tradeManager that will store/send the trades to the mongoDB
             try:
                 #todayTrading.makeTrade() returns nothing
-                print('objects being passed to tm.todayTrading.makeTrade: {} AND {}'.format(agg_dic,self.act))
                 self.todayTrading.makeTrade(agg_dic,self.act)
                     #print(single_trade_dic)
                     #direct interface with accounts class
@@ -146,3 +145,7 @@ class Dialogue(object):
         else:
             return('<p> Your cash balance is {}</p>'.format(self.act.coin_bal))
         return
+    
+    def retrievePortfolio(self):
+        return(self.act.positions.keys())
+        #return(['BTC','DGB'])
