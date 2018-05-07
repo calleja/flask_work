@@ -11,7 +11,7 @@ from app.cryptoMenu import CryptoMenuForm
 from app import engageUser as eu
 from app import retrieveMarkets, tradeDeetsForm
 from app import coinHistoryForm
-from nocache import nocache
+import numpy as np
 import os
 
 eud=eu.Dialogue()
@@ -60,8 +60,6 @@ def cryptoMenu():
     increment=35
     subsection=session['cryptos'][g:g+increment]
     cform=CryptoMenuForm()   
-    flash('this screen brought to you buy a {} request'.format(request.method))
-    flash('the current session number is {}'.format(session['number']))
     
     #if the next button was clicked... first iteration will be executed after the first set of currencies have been rendered
     if request.method== 'POST':
@@ -74,10 +72,7 @@ def cryptoMenu():
         elif cform.submit.data:
             #an asset has been selected... store it in a session variable
             session['trade_dict']={'ticker_index':cform.str_selection.data}
-            flash('user selection was {}'.format(cform.str_selection.data))
-            flash('user selection was {}'.format(session['trade_dict']['ticker_index']))
             session['trade_dict']['ticker']=df_active.loc[df_active['index']==int(cform.str_selection.data),'Currency'].values[0]
-            flash('and the ticker associated with it is {}'.format(session['trade_dict']['ticker']))
             return(redirect('/trade_details'))
     #first rendering with a GET request
     return(render_template('index_crypt.html', title='Main Menu', menu=subsection, form=cform))
@@ -88,11 +83,11 @@ def enquireDeets():
     form=tradeDeetsForm.TradeDetailsForm()
     #need to return a chart graphic and the current price of the ticker... the user can control this by selecting one of two buttons: view market stats and submit trade
     #rm=retrieveMarkets.RetrieveMarkets()
-    flash('user selection was {}'.format(session['trade_dict']['ticker_index']))
     if form.viewstats.data:
         #user elects to view stats, and not yet submit trade; render the prevailing market price and price chart
         #the below has dependencies: a) session['trade_dict']['ticker'] b) form.coinFreqString; c)form.tradeRadio.data
         try:
+            random_val=np.random.randint(low=1, high=10000, size=1)
             mkt_price,image_url=eud.engageUser('a',ticker=session['trade_dict']['ticker'],tradetype=form.tradeRadio.data)
         except TypeError:
             mkt_price= str(100.00)
@@ -102,7 +97,7 @@ def enquireDeets():
         #retrieve the graphic
         #image_url=rm.get100Day(session['trade_dict']['ticker'])
         #must pass the returned object from the eud.engageUser function to the render_template call here
-        return(render_template('marketStats.html',form=form,image_path=image_url,tradePrice=mkt_price))
+        return(render_template('marketStats.html',form=form,tradePrice=mkt_price,random_val=random_val[0]))
     elif form.submit.data:
         session['tradetype']=form.tradeRadio.data
         #this version of the call will store the trade in the db
@@ -121,17 +116,16 @@ def selectCoinHistory():
     form.tradeRadio.choices=lista
     if request.method=='POST':
         session['ticker_for_history']=dicty[form.tradeRadio.data]
-        flash('Passing coin ticker {} to engageUser'.format(session['ticker_for_history']))
         return(redirect('/coin_trade_history_graph'))
     return(render_template('menu_crypto_history.html',form=form))
     
 @app.route('/coin_trade_history_graph',methods=['GET','POST'])    
-@nocache
 def renderHistory():
     #eud will call the mongodb object, draw the two graaphs and return the two urls: one for each graphic
-    flash('attempting to project from renderHistory()')
     trade_hist_url=eud.engageUser('d',session['ticker_for_history'])
-    return(render_template('coin_trade_history_graphs.html',trade_hist_path=trade_hist_url))
+    random_val=np.random.randint(low=1, high=10000, size=1)
+    #trade_hist_path=trade_hist_url
+    return(render_template('coin_trade_history_graphs.html',random_val=random_val[0]))
 
 
 @app.route('/trade_blotter', methods = ['GET'])
@@ -143,4 +137,5 @@ def renderBlotter():
 @app.route('/profit_loss',methods=['GET'])
 def renderPL():
     table=eud.engageUser('c')
-    return(render_template('trade_blotter.html',        html_table=table))
+    random_val=np.random.randint(low=1, high=10000, size=1)
+    return(render_template('portfolio_level.html',        html_table=table,random_val=random_val[0]))

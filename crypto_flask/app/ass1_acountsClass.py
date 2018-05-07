@@ -11,6 +11,7 @@ import pandas as pd
 import sys
 import numpy as np
 import datetime
+import matplotlib.pyplot as plt
 
 class Account:
     def __init__(self):
@@ -186,5 +187,27 @@ this function will then instantiate a tradeClass object that will QA the trade (
         #print('cash df is set as {}'.format(cash_df))
         #print('portfolio df is set as {} '.format(df1))
         #print('and the result of EVERYTHING is {}'.format(pd.concat([df1,cash_df],axis=0,ignore_index=False)))
+        self.runGraphs()
+        #return a df and a string
         return(pd.concat([df1,cash_df],axis=0,ignore_index=False))
+    
+    def runGraphs(self):
+        fig,(ax1,ax2)=plt.subplots(1,2)
+        ax1.plot(self.coin_bal_history)
+        ax1.tick_params(labelrotation=45)
+        ax1.set_title('Coin Balance History')
+        ax2.plot(self.pl_history)
+        ax2.tick_params(labelrotation=45)
+        ax2.set_title('Portfolio P/L History')
+        plt.savefig('./app/static/portfolio_level.png',format='png')
+        
+'''
+fig,(ax1,ax2)=plt.subplots(1,2)
+        ax1.plot(df_mongo['execution timestamp'],df_mongo['executed price'])
+        ax1.tick_params(labelrotation=45)
+#plt.xticks(rotation=45)
+        ax2.plot(df_mongo['execution timestamp'],df_mongo['vwap'])
+        ax2.tick_params(labelrotation=45)
+        plt.savefig('./app/static/image_history.png',format='png')
+'''        
         

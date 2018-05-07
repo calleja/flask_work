@@ -7,10 +7,8 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import requests
 import datetime
-import os
 import numpy as np
-import base64
-from io import BytesIO
+
 
 class RetrieveMarkets():
     #some global variables for Bittrex
@@ -122,3 +120,22 @@ class RetrieveMarkets():
         plt.title('100 day and 20 day MA: '+str(self.base_currency)+'-'+ticker+' pair')
         plt.savefig('./app/static/image_price_ts_basic.png',format='png')
         return('static/image_price_ts_basic.png')
+        
+    def get250Day(self,ticker):
+        url='https://min-api.cryptocompare.com/data/histoday'
+        #will return a str
+#prices from last 200 days
+        parameters= {'fsym':ticker, 'tsym': self.base_currency, 'e': 'Bittrex', 'aggregate':1,'limit':450}
+        
+        r=requests.get(url,parameters)
+        #handle this error in the calling class
+        j_obj=r.json()
+        if j_obj['Response']=='Error':
+            print(j_obj)
+            #print("fetch didn't work")
+            raise RuntimeError
+        raw_time=j_obj['Data']
+        df=pd.DataFrame.from_dict(raw_time)
+        df['time']=df['time'].apply(lambda x: datetime.datetime.fromtimestamp(x))
+        df.index=pd.to_datetime(df.time)
+        return(df)

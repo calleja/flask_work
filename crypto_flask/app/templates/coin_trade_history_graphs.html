@@ -4,6 +4,8 @@
 <h3>Plots of executed prices and vwap </h3>
 <!--<p><img src={{ trade_hist_path }} width="820" height ="400" /></p>-->
 <p>
-<img src="{{ url_for('static', filename=trade_hist_path) }}" width="820" height ="400" /></p>
+<img src="/static/image_history.png?value={{ random_val }}" width="820" height ="400" /></p>
+
+<!--<img src="{{ url_for('static', filename="image_history.png?value={{ random_val }}") }}" width="820" height ="400" /></p> -->
 
 {% endblock %}

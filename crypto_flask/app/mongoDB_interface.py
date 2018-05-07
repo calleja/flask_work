@@ -26,7 +26,7 @@ class MongoInterface(object):
             client=pymongo.MongoClient('mongodb://tio:persyy@ds131329.mlab.com:31329/crypto_trades',serverSelectionTimeoutMS=7000)
         self.db=client.crypto_trades
         self.trades=self.db.trade_collection
-        #self.trades.remove() 
+        self.trades.remove() 
         
     def tradeInjection(self,doc):
         self.trades.insert_one(doc)
@@ -67,9 +67,11 @@ class MongoInterface(object):
         fig,(ax1,ax2)=plt.subplots(1,2)
         ax1.plot(df_mongo['execution timestamp'],df_mongo['executed price'])
         ax1.tick_params(labelrotation=45)
+        ax1.set_title('Executed Price History')
 #plt.xticks(rotation=45)
         ax2.plot(df_mongo['execution timestamp'],df_mongo['vwap'])
         ax2.tick_params(labelrotation=45)
+        ax2.set_title('VWAP History')
         plt.savefig('./app/static/image_history.png',format='png')
         #return the paths of two graphics: a vwap plot and trade price plot
         #db.trade_collection.find({'ticker':'LTC'},{'ticker':1,'execution timestamp':1,'executed price':1,'vwap':1,'_id':0})
