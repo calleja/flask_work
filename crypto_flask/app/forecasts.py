@@ -6,12 +6,8 @@ Created on Sun May  6 22:51:03 2018
 @author: lechuza
 """
 import sys
-import fbprophet
 import pandas as pd
 import numpy as np
-from app import retrieveMarkets as rm
-
-sys.path.append('/home/lechuza/Documents/CUNY/data_607/flask_work/crypto_flask')
 
 class Forecast(object):
     def __init__(self,rma):
@@ -19,11 +15,15 @@ class Forecast(object):
         self.two_assets=['XMR','ETH']
     
     def runProgram(self):
-        results={}
+        results=[]
+        
         for i in self.two_assets:
+            print('ticker being processed: {}'.format(i))
             df=self.prepareDF(i)
-            fbprice=self.fbPredict(df)
-            results[i]=[fbprice]
+            print('df in tact after prepareDF with shape:'.format(df.shape))
+            #fbprice=self.fbPredict(df)
+            results.append(df)
+        return(results)
         
     def prepareDF(self,ticker):
         mro_df=self.rma.get250Day(ticker)
@@ -67,14 +67,4 @@ class Forecast(object):
         return(var_df)
         
         
-    def fbPredict(self,var_df):
-        fb_version=var_df.rename(columns={'time':'ds','mid':'y'})
-
-#fb_version.dtypes
-        ts_prophet=fbprophet.Prophet(changepoint_prior_scale=0.15)
-        ts_prophet.fit(fb_version[['y','ds','vol_3day','vol_15day','prop2','prop5','prop15','returns']])
-
-        ts_forecast=ts_prophet.make_future_dataframe(periods=14,freq='D')
-        ts_forecast=ts_prophet.predict(ts_forecast)
-
-        return(ts_forecast['yhat'][var_df.shape[0]])
+    
